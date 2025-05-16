@@ -38,6 +38,43 @@ const images = [
     alt: "Уютный уголок кофейни",
     span: "col-span-2 row-span-1"
   },
+  // Новые изображения
+  {
+    id: 7,
+    src: "https://images.unsplash.com/photo-1572286258217-215cf8e667b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    alt: "Латте с корицей",
+    span: "col-span-1 row-span-1"
+  },
+  {
+    id: 8,
+    src: "https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    alt: "Капучино с узором",
+    span: "col-span-1 row-span-1"
+  },
+  {
+    id: 9,
+    src: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    alt: "Кофейная карта",
+    span: "col-span-1 row-span-1"
+  },
+  {
+    id: 10,
+    src: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    alt: "Завтрак в кафе",
+    span: "col-span-2 row-span-1"
+  },
+  {
+    id: 11,
+    src: "https://images.unsplash.com/photo-1511537190424-bbbab87ac5eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    alt: "Бариста за работой",
+    span: "col-span-1 row-span-1"
+  },
+  {
+    id: 12,
+    src: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=2071&q=80",
+    alt: "Десерты и выпечка",
+    span: "col-span-1 row-span-1"
+  },
 ];
 
 const GallerySection = () => {
@@ -68,6 +105,26 @@ const GallerySection = () => {
     window.open(src, '_blank');
   };
 
+  // Функция для создания мозаики изображений с равномерным распределением
+  const createMosaicLayout = () => {
+    // Создаем копию массива изображений для работы
+    const workingImages = [...images];
+    
+    // Группируем изображения для отображения в мозаичном режиме
+    // с поддержкой различных размеров ячеек
+    const rows = [];
+    const itemsPerFullRow = 3; // для desktops
+    
+    for (let i = 0; i < workingImages.length; i += itemsPerFullRow) {
+      const rowImages = workingImages.slice(i, i + itemsPerFullRow);
+      rows.push(rowImages);
+    }
+    
+    return rows;
+  };
+
+  const mosaicRows = createMosaicLayout();
+
   return (
     <section id="gallery" className="py-20 bg-coffee-cream/20" ref={sectionRef}>
       <div className="container mx-auto px-6">
@@ -87,7 +144,7 @@ const GallerySection = () => {
         </div>
 
         <div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-12 animate-on-scroll" 
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 animate-on-scroll" 
           ref={(el) => (elementsRef.current[2] = el)}
         >
           {images.map((image) => (
@@ -100,6 +157,7 @@ const GallerySection = () => {
                 src={image.src} 
                 alt={image.alt} 
                 className="w-full h-full object-cover aspect-square hover:scale-110 transition-transform duration-700"
+                loading="lazy" // Добавляем ленивую загрузку для оптимизации
               />
             </div>
           ))}
