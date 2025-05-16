@@ -1,44 +1,54 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, RefObject } from 'react';
 
 interface UseIntersectionObserverProps {
   threshold?: number;
   rootMargin?: string;
-  enabled?: boolean;
+  freezeOnceVisible?: boolean;
 }
 
-/**
- * Хук для отслеживания пересечения элементов с областью видимости
- * и автоматического добавления класса анимации
- */
 export function useIntersectionObserver({
   threshold = 0.1,
   rootMargin = '0px',
-  enabled = true
+  freezeOnceVisible = false,
 }: UseIntersectionObserverProps = {}) {
-  const elementsRef = useRef<(HTMLElement | null)[]>([]);
+  const observerRef = useRef<HTMLElement | null>(null);
+  const frozen = useRef(false);
 
   useEffect(() => {
-    if (!enabled) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('animate-active');
+            const target = entry.target as HTMLElement;
+            target.classList.add('animate-active');
+            
+            if (freezeOnceVisible) {
+              frozen.current = true;
+              observer.unobserve(target);
+            }
+          } else if (!freezeOnceVisible && !frozen.current) {
+            const target = entry.target as HTMLElement;
+            target.classList.remove('animate-active');
           }
         });
       },
       { threshold, rootMargin }
     );
 
-    const elements = elementsRef.current.filter(Boolean) as HTMLElement[];
-    elements.forEach((el) => observer.observe(el));
+    const currentRef = observerRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
 
     return () => {
-      elements.forEach((el) => observer.unobserve(el));
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
     };
-  }, [threshold, rootMargin, enabled]);
+  }, [threshold, rootMargin, freezeOnceVisible]);
 
-  return { elementsRef };
+  return observerRef;
 }
+
+export default useIntersectionObserver;
